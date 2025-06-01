@@ -1,3 +1,25 @@
+.container {
+    padding: 20px;
+}
+
+.content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.topBar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.logo {
+    font-weight: 600;
+    font-size: 18px;
+}
+
 .pagination {
     display: flex;
     justify-content: center;
