@@ -1,35 +1,46 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from 'react';
+import { Toaster, toast } from 'react-hot-toast';
+import { useMovies } from './hooks/useMovies';
+import type { Movie } from './types/movie';
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [query, setQuery] = useState('');
+  const [page, setPage] = useState(1);
+
+  const { data, isLoading, isError } = useMovies(query, page);
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    const value = (formData.get('query') as string).trim();
+
+    if (!value) {
+      toast.error('Please enter your search query.');
+      return;
+    }
+
+    setQuery(value);
+    setPage(1);
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div>
+      <Toaster position="top-right" />
 
-export default App
+      <form onSubmit={handleSubmit}>
+        <input type="text" name="query" placeholder="Search movies..." />
+        <button type="submit">Search</button>
+      </form>
+
+      {isLoading && <p>Loading movies...</p>}
+      {isError && <p>There was an error loading movies.</p>}
+
+      <ul>
+        {data?.results.map((movie: Movie) => (
+          <li key={movie.id}>{movie.title}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
