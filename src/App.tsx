@@ -4,6 +4,9 @@ import { useMovies } from './hooks/useMovies';
 import ReactPaginate from 'react-paginate';
 import css from './App.module.css';
 import MovieGrid from './components/MovieGrid/MovieGrid';
+import SearchBar from './components/SearchBar/SearchBar';
+import Loader from './components/Loader/Loader';
+import ErrorMessage from './components/ErrorMessage/ErrorMessage';
 
 export default function App() {
   const [query, setQuery] = useState('');
@@ -15,20 +18,18 @@ export default function App() {
   useEffect(() => {
     if (data) {
       setTotalPages(data.total_pages);
+
+      if (data.results.length === 0) {
+        toast.error('No movies found for your request.');
+      }
     }
   }, [data]);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const form = e.currentTarget;
-    const formData = new FormData(form);
-    const value = (formData.get('query') as string).trim();
-
+  const handleSearch = (value: string) => {
     if (!value) {
       toast.error('Please enter your search query.');
       return;
     }
-
     setQuery(value);
     setPage(1);
   };
@@ -37,37 +38,32 @@ export default function App() {
     <div className={css.container}>
       <Toaster position="top-right" />
 
-      <div className={css.header}>
-        <p className={css.logo}>
-          Powered by{' '}
-          <a href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer">
-            TMDB
-          </a>
-        </p>
+      <p className={css.logo}>
+        Powered by{' '}
+        <a href="https://www.themoviedb.org/" target="_blank" rel="noreferrer">
+          TMDB
+        </a>
+      </p>
 
-        <form onSubmit={handleSubmit} className={css.searchForm}>
-          <input type="text" name="query" placeholder="Search movies..." />
-          <button type="submit">Search</button>
-        </form>
+      <SearchBar onSubmit={handleSearch} />
 
-        {totalPages > 1 && (
-          <ReactPaginate
-            pageCount={totalPages}
-            pageRangeDisplayed={5}
-            marginPagesDisplayed={1}
-            onPageChange={({ selected }) => setPage(selected + 1)}
-            forcePage={page - 1}
-            containerClassName={css.pagination}
-            activeClassName={css.active}
-            nextLabel="→"
-            previousLabel="←"
-          />
-        )}
-      </div>
+      {totalPages > 1 && (
+        <ReactPaginate
+          pageCount={totalPages}
+          pageRangeDisplayed={5}
+          marginPagesDisplayed={1}
+          onPageChange={({ selected }) => setPage(selected + 1)}
+          forcePage={page - 1}
+          containerClassName={css.pagination}
+          activeClassName={css.active}
+          nextLabel="→"
+          previousLabel="←"
+        />
+      )}
 
-      {isLoading && <p>Loading movies...</p>}
-      {isError && <p>There was an error loading movies.</p>}
-      {data && <MovieGrid movies={data.results} />}
+      {isLoading && <Loader />}
+      {isError && <ErrorMessage message="There was an error loading movies." />}
+      {data && data.results.length > 0 && <MovieGrid movies={data.results} />}
     </div>
   );
 }
