@@ -15,7 +15,6 @@ export default function App() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
-
   const { data, isLoading, isError } = useMovies(query, page);
 
   useEffect(() => {
@@ -28,14 +27,17 @@ export default function App() {
     }
   }, [data]);
 
-  const handleSearch = (value: string) => {
-    if (!value) {
+  const handleSearch = (formData: FormData) => {
+    const query = (formData.get('query') as string).trim();
+
+    if (!query) {
       toast.error('Please enter your search query.');
       return;
     }
-    setQuery(value);
+
+    setQuery(query);
     setPage(1);
-  };
+  }
 
   return (
     <div className={css.container}>
@@ -48,7 +50,7 @@ export default function App() {
             TMDB
           </a>
         </p>
-        <SearchBar onSubmit={handleSearch} />
+        <SearchBar action={handleSearch} />
       </div>
 
       {totalPages > 1 && (
