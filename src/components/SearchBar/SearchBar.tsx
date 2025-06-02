@@ -11,7 +11,7 @@ export default function SearchBar({ action }: SearchBarProps) {
                 className={styles.input}
                 type="text"
                 name="query"
-                placeholder="Search movie..."
+                placeholder="Search movies..."
                 autoComplete="off"
             />
             <button className={styles.button} type="submit">
