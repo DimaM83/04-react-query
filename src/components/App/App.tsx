@@ -17,7 +17,7 @@ export default function App() {
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
-
+  
   const {
     data,
     isLoading,
@@ -37,8 +37,15 @@ export default function App() {
     }
   }, [data, isSuccess]);
 
-  const handleSearch = (query: string) => {
-    setQuery(query);
+  const handleSearch = (formData: FormData) => {
+    const newQuery = (formData.get('query') as string).trim();
+
+    if (!newQuery) {
+      toast.error('Please enter your search query.');
+      return;
+    }
+
+    setQuery(newQuery);
     setPage(1);
   };
 
@@ -61,7 +68,7 @@ export default function App() {
             TMDB
           </a>
         </p>
-        <SearchBar onSubmit={handleSearch} />
+        <SearchBar action={handleSearch} />
       </div>
 
       {isSuccess && data.total_pages > 1 && (
