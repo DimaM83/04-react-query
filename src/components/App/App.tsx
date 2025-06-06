@@ -17,7 +17,7 @@ export default function App() {
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
-  
+
   const {
     data,
     isLoading,
@@ -37,18 +37,6 @@ export default function App() {
     }
   }, [data, isSuccess]);
 
-  const handleSearch = (formData: FormData) => {
-    const newQuery = (formData.get('query') as string).trim();
-
-    if (!newQuery) {
-      toast.error('Please enter your search query.');
-      return;
-    }
-
-    setQuery(newQuery);
-    setPage(1);
-  };
-
   const handlePageChange = (selectedItem: { selected: number }) => {
     setPage(selectedItem.selected + 1);
   };
@@ -57,19 +45,12 @@ export default function App() {
     <div className={css.container}>
       <Toaster position="top-right" />
 
-      <div className={css.topBar}>
-        <p className={css.logo}>
-          Powered by{' '}
-          <a
-            href="https://www.themoviedb.org/"
-            target="_blank"
-            rel="noreferrer"
-          >
-            TMDB
-          </a>
-        </p>
-        <SearchBar action={handleSearch} />
-      </div>
+      <SearchBar
+        onSubmit={(newQuery) => {
+          setQuery(newQuery);
+          setPage(1);
+        }}
+      />
 
       {isSuccess && data.total_pages > 1 && (
         <ReactPaginate
@@ -86,9 +67,7 @@ export default function App() {
       )}
 
       {isLoading && <Loader />}
-      {isError && (
-        <ErrorMessage message="There was an error loading movies." />
-      )}
+      {isError && <ErrorMessage message="There was an error loading movies." />}
       {isSuccess && data.results.length > 0 && (
         <MovieGrid movies={data.results} onSelect={setSelectedMovie} />
       )}
